@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 enum ProductCategory {
@@ -60,22 +60,24 @@ model SiteSettings {
 }
 
 model Order {
-  id              String         @id @default(cuid())
-  publicCode      String         @unique
-  status          OrderStatus    @default(PENDING_PAYMENT)
-  customerName    String
-  customerPhone   String
-  customerAddress String         @default("")
-  deliveryMethod  DeliveryMethod
-  notes           String         @default("")
+  id               String         @id @default(cuid())
+  publicCode       String         @unique
+  status           OrderStatus    @default(PENDING_PAYMENT)
+  customerName     String
+  customerPhone    String
+  customerAddress  String         @default("")
+  deliveryMethod   DeliveryMethod
+  notes            String         @default("")
   pricePerGramSnap Int
-  subtotalToman   Int
-  expiresAt       DateTime
-  receiptPath     String?
-  adminNote       String         @default("")
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
-  items           OrderItem[]
+  subtotalToman    Int
+  expiresAt        DateTime
+  receiptPath      String?
+  receiptMime      String?
+  receiptData      String?
+  adminNote        String         @default("")
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  items            OrderItem[]
 }
 
 model OrderItem {

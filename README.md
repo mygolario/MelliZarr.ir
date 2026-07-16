@@ -8,26 +8,22 @@
 - محاسبه خودکار قیمت از وزن × نرخ روز + اجرت
 - سبد خرید، ثبت سفارش، پرداخت کارت‌به‌کارت و آپلود فیش
 - پنل ادمین: نرخ روز، کارت بانکی، محصولات، وضعیت سفارش‌ها
+- دیتابیس Postgres آماده برای Vercel
 
 ## راه‌اندازی محلی
 
 ```bash
 npm install
-cp .env.example .env
+cp .env.example .env   # DATABASE_URL را از Prisma بگذارید
 npx prisma migrate dev
 npm run db:seed
 npm run dev
 ```
 
-سایت: [http://localhost:3000](http://localhost:3000)  
-ادمین: [http://localhost:3000/admin](http://localhost:3000/admin)
+سایت: http://localhost:3000  
+ادمین: http://localhost:3000/admin
 
-پیش‌فرض ورود ادمین در `.env`:
-
-- `ADMIN_USERNAME=admin`
-- `ADMIN_PASSWORD=mellizarr-admin`
-
-قبل از لانچ واقعی رمز، شماره کارت، تلفن و واتساپ را عوض کنید.
+راهنمای Deploy: [DEPLOY.md](./DEPLOY.md)
 
 ## اسکریپت‌ها
 
@@ -36,7 +32,8 @@ npm run dev
 | `npm run dev` | سرور توسعه |
 | `npm run build` | بیلد تولید |
 | `npm run db:seed` | بارگذاری محصولات اولیه |
-| `npm run db:migrate` | مایگریشن دیتابیس |
+| `npm run db:deploy` | اعمال مایگریشن روی production |
+| `npm run vercel-build` | بیلد مخصوص Vercel (migrate + seed + build) |
 
 ## فازهای بعدی
 

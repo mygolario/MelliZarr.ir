@@ -1,5 +1,3 @@
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
@@ -35,8 +33,8 @@ export async function POST(request: Request, { params }: Props) {
     return NextResponse.json({ error: "فایل فیش را انتخاب کنید." }, { status: 400 });
   }
 
-  if (file.size > 5 * 1024 * 1024) {
-    return NextResponse.json({ error: "حجم فایل حداکثر ۵ مگابایت." }, { status: 400 });
+  if (file.size > 4 * 1024 * 1024) {
+    return NextResponse.json({ error: "حجم فایل حداکثر ۴ مگابایت." }, { status: 400 });
   }
 
   const allowed = new Set(["image/jpeg", "image/png", "image/webp", "application/pdf"]);
@@ -47,27 +45,16 @@ export async function POST(request: Request, { params }: Props) {
     );
   }
 
-  const ext =
-    file.type === "application/pdf"
-      ? "pdf"
-      : file.type === "image/png"
-        ? "png"
-        : file.type === "image/webp"
-          ? "webp"
-          : "jpg";
-
-  const dir = path.join(process.cwd(), "public", "uploads", "receipts");
-  await mkdir(dir, { recursive: true });
-  const filename = `${order.publicCode}-${Date.now()}.${ext}`;
-  const abs = path.join(dir, filename);
   const buffer = Buffer.from(await file.arrayBuffer());
-  await writeFile(abs, buffer);
+  const receiptData = buffer.toString("base64");
+  const receiptPath = `/api/orders/${id}/receipt/file`;
 
-  const receiptPath = `/uploads/receipts/${filename}`;
   await prisma.order.update({
     where: { id },
     data: {
       receiptPath,
+      receiptMime: file.type,
+      receiptData,
       status: "AWAITING_REVIEW",
     },
   });

@@ -1,16 +1,13 @@
 import "dotenv/config";
-import path from "node:path";
 import { PrismaClient, ProductCategory } from "../src/generated/prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaPg } from "@prisma/adapter-pg";
 
-function resolveSqliteUrl(): string {
-  const raw = process.env.DATABASE_URL ?? "file:./prisma/dev.db";
-  const withoutScheme = raw.replace(/^file:/, "");
-  if (path.isAbsolute(withoutScheme)) return withoutScheme;
-  return path.join(process.cwd(), withoutScheme);
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  throw new Error("DATABASE_URL is not set");
 }
 
-const adapter = new PrismaBetterSqlite3({ url: resolveSqliteUrl() });
+const adapter = new PrismaPg(connectionString);
 const prisma = new PrismaClient({ adapter });
 
 /** ۱۰۰ سوت = ۱ گرم (عرف بازار سکه‌های پارسیان/الیزابت) */
