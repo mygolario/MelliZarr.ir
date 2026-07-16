@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum ProductCategory {
+  ELIZABETH_PARSIAN
+  NON_BANK
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  AWAITING_REVIEW
+  CONFIRMED
+  SHIPPED
+  CANCELLED
+}
+
+enum DeliveryMethod {
+  TEHRAN_PICKUP
+  IRAN_SHIPPING
+}
+
+model Product {
+  id           String          @id @default(cuid())
+  slug         String          @unique
+  title        String
+  category     ProductCategory
+  weightGrams  Float
+  wagePercent  Float           @default(2)
+  fixedMarkup  Int             @default(0)
+  stock        Int             @default(50)
+  active       Boolean         @default(true)
+  sortOrder    Int             @default(0)
+  description  String          @default("")
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  orderItems   OrderItem[]
+}
+
+model SiteSettings {
+  id                 Int      @id @default(1)
+  pricePerGram       Int
+  priceUpdatedAt     DateTime @default(now())
+  bankCardNumber     String
+  bankCardHolder     String
+  bankName           String   @default("ملت")
+  phone              String
+  whatsapp           String
+  telegram           String   @default("")
+  instagram          String   @default("")
+  orderValidityMins  Int      @default(20)
+  shippingNote       String   @default("ارسال با بیمه و بسته‌بندی امن در سراسر ایران")
+  pickupNote         String   @default("تحویل حضوری در تهران با هماهنگی قبلی")
+  updatedAt          DateTime @updatedAt
+}
+
+model Order {
+  id              String         @id @default(cuid())
+  publicCode      String         @unique
+  status          OrderStatus    @default(PENDING_PAYMENT)
+  customerName    String
+  customerPhone   String
+  customerAddress String         @default("")
+  deliveryMethod  DeliveryMethod
+  notes           String         @default("")
+  pricePerGramSnap Int
+  subtotalToman   Int
+  expiresAt       DateTime
+  receiptPath     String?
+  adminNote       String         @default("")
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  items           OrderItem[]
+}
+
+model OrderItem {
+  id              String  @id @default(cuid())
+  orderId         String
+  productId       String
+  titleSnap       String
+  weightGramsSnap Float
+  unitPriceToman  Int
+  quantity        Int
+  lineTotalToman  Int
+  order           Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product         Product @relation(fields: [productId], references: [id])
+}
