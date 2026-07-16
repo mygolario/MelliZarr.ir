@@ -27,49 +27,68 @@ type CartContextValue = {
 };
 
 const STORAGE_KEY = "mellizarr-cart-v1";
+const EMPTY: CartLine[] = [];
 const CartContext = createContext<CartContextValue | null>(null);
 
-function readCart(): CartLine[] {
+let cachedRaw: string | null = null;
+let cachedItems: CartLine[] = EMPTY;
+
+function readCartSnapshot(): CartLine[] {
   try {
-    if (typeof window === "undefined") return [];
+    if (typeof window === "undefined") return EMPTY;
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
+    if (raw === cachedRaw) return cachedItems;
+    cachedRaw = raw;
+    if (!raw) {
+      cachedItems = EMPTY;
+      return cachedItems;
+    }
     const parsed: unknown = JSON.parse(raw);
-    return Array.isArray(parsed) ? (parsed as CartLine[]) : [];
+    cachedItems = Array.isArray(parsed) ? (parsed as CartLine[]) : EMPTY;
+    return cachedItems;
   } catch {
-    return [];
+    cachedRaw = null;
+    cachedItems = EMPTY;
+    return EMPTY;
   }
 }
 
 function writeCart(items: CartLine[]) {
+  const raw = JSON.stringify(items);
+  cachedRaw = raw;
+  cachedItems = items.length === 0 ? EMPTY : items;
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-    window.dispatchEvent(new Event("mellizarr-cart"));
+    window.localStorage.setItem(STORAGE_KEY, raw);
   } catch {
-    // Safari private mode / blocked storage — keep in-memory via event only
-    window.dispatchEvent(new Event("mellizarr-cart"));
+    // Safari private mode may block storage; in-memory cache still works.
   }
+  window.dispatchEvent(new Event("mellizarr-cart"));
 }
 
 function subscribe(onStoreChange: () => void) {
-  window.addEventListener("storage", onStoreChange);
-  window.addEventListener("mellizarr-cart", onStoreChange);
+  const handler = () => onStoreChange();
+  window.addEventListener("storage", handler);
+  window.addEventListener("mellizarr-cart", handler);
   return () => {
-    window.removeEventListener("storage", onStoreChange);
-    window.removeEventListener("mellizarr-cart", onStoreChange);
+    window.removeEventListener("storage", handler);
+    window.removeEventListener("mellizarr-cart", handler);
   };
 }
 
 function getServerSnapshot(): CartLine[] {
-  return [];
+  return EMPTY;
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const items = useSyncExternalStore(subscribe, readCart, getServerSnapshot);
+  const items = useSyncExternalStore(
+    subscribe,
+    readCartSnapshot,
+    getServerSnapshot,
+  );
 
   const addItem = useCallback(
     (item: Omit<CartLine, "quantity">, quantity = 1) => {
-      const prev = readCart();
+      const prev = readCartSnapshot();
       const existing = prev.find((line) => line.productId === item.productId);
       const next = existing
         ? prev.map((line) =>
@@ -84,12 +103,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
   );
 
   const removeItem = useCallback((productId: string) => {
-    writeCart(readCart().filter((line) => line.productId !== productId));
+    writeCart(readCartSnapshot().filter((line) => line.productId !== productId));
   }, []);
 
   const setQuantity = useCallback((productId: string, quantity: number) => {
     writeCart(
-      readCart()
+      readCartSnapshot()
         .map((line) =>
           line.productId === productId
             ? { ...line, quantity: Math.max(1, quantity) }
