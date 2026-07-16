@@ -23,3 +23,7 @@ Framework Preset باید **Next.js** باشد. Branch: **main**.
 
 1. `/admin` → نرخ طلا و شماره کارت واقعی
 2. Domains → اتصال `MelliZarr.ir`
+
+### اگر در موبایل «This page couldn't load» دیدید
+
+دامنه `*.vercel.app` از بعضی شبکه‌های ایران ناپایدار است. دامنه اختصاصی `MelliZarr.ir` را در Vercel → Domains وصل کنید و همان را باز کنید.
