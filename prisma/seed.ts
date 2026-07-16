@@ -1,14 +1,6 @@
 import "dotenv/config";
-import { PrismaClient, ProductCategory } from "../src/generated/prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
-
-const connectionString = process.env.DATABASE_URL;
-if (!connectionString) {
-  throw new Error("DATABASE_URL is not set");
-}
-
-const adapter = new PrismaPg(connectionString);
-const prisma = new PrismaClient({ adapter });
+import { ProductCategory } from "../src/generated/prisma/client";
+import { prisma } from "../lib/prisma";
 
 /** ۱۰۰ سوت = ۱ گرم (عرف بازار سکه‌های پارسیان/الیزابت) */
 const SOT_TO_GRAM = 0.01;

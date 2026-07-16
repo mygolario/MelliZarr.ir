@@ -1,32 +1,25 @@
 # Deploy ملی‌زر روی Vercel
 
-## ۱) دیتابیس را Claim کنید (حتماً)
+## دیتابیس
 
-دیتابیس موقت Prisma Postgres ساخته شده. اگر Claim نشود بعد از ۲۴ ساعت پاک می‌شود:
+Prisma Postgres به پروژه لینک شده (`db_aqkdgrz0265pq5apom9xwoz2`).  
+`DATABASE_URL` فقط داخل `.env` محلی است (کامیت نمی‌شود).
 
-https://create-db.prisma.io/claim?projectID=proj_f472leoii33xyg0ta5dkzid7&utm_source=create-db&utm_medium=cli
+## تنظیمات Vercel → Environment Variables
 
-بعد از Claim، `DATABASE_URL` را از داشبورد Prisma کپی کنید.
+از Prisma Console یا فایل `.env` محلی این‌ها را کپی کنید (مقدارها را اینجا ننویسید):
 
-## ۲) تنظیمات صفحه New Project در Vercel
-
-| فیلد | مقدار |
+| Name | از کجا |
 |------|--------|
-| Framework Preset | **Next.js** (نه Other) |
-| Root Directory | `./` |
-| Branch | `main` |
-
-### Environment Variables
-
-| Name | Value |
-|------|--------|
-| `DATABASE_URL` | همان connection string بعد از Claim |
+| `DATABASE_URL` | `.env` بعد از `prisma postgres link` |
 | `ADMIN_USERNAME` | مثلاً `admin` |
-| `ADMIN_PASSWORD` | رمز قوی خودتان |
+| `ADMIN_PASSWORD` | رمز قوی |
 
-بعد Deploy را بزنید. بیلد خودش migrate و seed را اجرا می‌کند.
+Framework Preset باید **Next.js** باشد. Branch: **main**.
 
-## ۳) بعد از Deploy
+بیلد از `npm run vercel-build` استفاده می‌کند (migrate + seed + build).
 
-1. وارد `/admin` شوید و نرخ طلا + شماره کارت واقعی را تنظیم کنید
-2. دامنه اختصاصی را در Vercel → Domains وصل کنید
+## بعد از Deploy
+
+1. `/admin` → نرخ طلا و شماره کارت واقعی
+2. Domains → اتصال `MelliZarr.ir`
