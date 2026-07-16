@@ -31,7 +31,8 @@ const CartContext = createContext<CartContextValue | null>(null);
 
 function readCart(): CartLine[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    if (typeof window === "undefined") return [];
+    const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
     const parsed: unknown = JSON.parse(raw);
     return Array.isArray(parsed) ? (parsed as CartLine[]) : [];
@@ -41,8 +42,13 @@ function readCart(): CartLine[] {
 }
 
 function writeCart(items: CartLine[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  window.dispatchEvent(new Event("mellizarr-cart"));
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    window.dispatchEvent(new Event("mellizarr-cart"));
+  } catch {
+    // Safari private mode / blocked storage — keep in-memory via event only
+    window.dispatchEvent(new Event("mellizarr-cart"));
+  }
 }
 
 function subscribe(onStoreChange: () => void) {

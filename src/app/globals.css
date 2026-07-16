@@ -62,9 +62,16 @@ img {
   position: sticky;
   top: 0;
   z-index: 40;
-  backdrop-filter: blur(14px);
-  background: rgba(15, 13, 11, 0.72);
+  background: rgba(15, 13, 11, 0.92);
   border-bottom: 1px solid var(--line);
+}
+
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .site-header {
+    background: rgba(15, 13, 11, 0.72);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+  }
 }
 
 .header-inner {
@@ -241,9 +248,19 @@ img {
   border-radius: 50%;
   background:
     radial-gradient(circle at 35% 35%, #f0d9a0, #b8893a 45%, #5a4018 70%, transparent 72%);
-  filter: blur(0.2px);
   opacity: 0.9;
   animation: coinFloat 7s ease-in-out infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-media::after,
+  .hero-brand,
+  .hero-title,
+  .hero-copy,
+  .hero-cta {
+    animation: none !important;
+  }
 }
 
 .hero-content {

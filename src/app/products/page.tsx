@@ -1,22 +1,29 @@
 import { ProductCard } from "@/components/product-card";
+import { getActiveProductsCached, getSiteSettingsCached } from "@/lib/catalog";
 import { categoryLabels } from "@/lib/config";
-import { prisma } from "@/lib/db";
 import { calculateUnitPriceToman, formatFaDateTime, formatToman } from "@/lib/pricing";
 import type { ProductCategory } from "@/generated/prisma/client";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 export const metadata = { title: "محصولات" };
 
 const order: ProductCategory[] = ["ELIZABETH_PARSIAN", "NON_BANK"];
 
 export default async function ProductsPage() {
   const [settings, products] = await Promise.all([
-    prisma.siteSettings.findUniqueOrThrow({ where: { id: 1 } }),
-    prisma.product.findMany({
-      where: { active: true },
-      orderBy: { sortOrder: "asc" },
-    }),
+    getSiteSettingsCached(),
+    getActiveProductsCached(),
   ]);
+
+  if (!settings) {
+    return (
+      <section className="section">
+        <div className="shell panel">
+          <p className="muted">فعلاً امکان نمایش کاتالوگ نیست. کمی بعد دوباره تلاش کنید.</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="section">

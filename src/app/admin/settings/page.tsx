@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { isAdminAuthenticated } from "@/lib/auth";
 import { prisma } from "@/lib/db";
@@ -36,6 +37,8 @@ async function updateSettingsAction(formData: FormData) {
     },
   });
 
+  revalidateTag("site-settings", "max");
+  revalidateTag("products", "max");
   redirect("/admin/settings?saved=1");
 }
 

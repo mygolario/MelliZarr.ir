@@ -10,6 +10,9 @@ const vazirmatn = Vazirmatn({
   variable: "--font-vazirmatn",
   subsets: ["arabic", "latin"],
   weight: ["400", "500", "700", "800", "900"],
+  display: "swap",
+  preload: true,
+  fallback: ["Tahoma", "Arial", "sans-serif"],
 });
 
 export const metadata: Metadata = {

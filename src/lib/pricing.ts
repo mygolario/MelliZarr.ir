@@ -22,9 +22,11 @@ export function formatWeightGrams(weight: number): string {
   }).format(weight) + " گرم";
 }
 
-export function formatFaDateTime(date: Date): string {
+export function formatFaDateTime(date: Date | string | number): string {
+  const value = date instanceof Date ? date : new Date(date);
+  if (Number.isNaN(value.getTime())) return "—";
   return new Intl.DateTimeFormat("fa-IR", {
     dateStyle: "medium",
     timeStyle: "short",
-  }).format(date);
+  }).format(value);
 }

@@ -1,10 +1,20 @@
-import { prisma } from "@/lib/db";
+import { getSiteSettingsCached } from "@/lib/catalog";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 export const metadata = { title: "تماس" };
 
 export default async function ContactPage() {
-  const settings = await prisma.siteSettings.findUniqueOrThrow({ where: { id: 1 } });
+  const settings = await getSiteSettingsCached();
+  if (!settings) {
+    return (
+      <section className="section">
+        <div className="shell panel">
+          <p className="muted">اطلاعات تماس فعلاً در دسترس نیست.</p>
+        </div>
+      </section>
+    );
+  }
+
   const wa = settings.whatsapp.replace(/\D/g, "");
 
   return (

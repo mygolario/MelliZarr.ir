@@ -1,39 +1,28 @@
 import Link from "next/link";
 import { ProductCard } from "@/components/product-card";
+import { getFeaturedProductsCached, getSiteSettingsCached } from "@/lib/catalog";
 import { siteConfig } from "@/lib/config";
-import { prisma } from "@/lib/db";
 import {
   calculateUnitPriceToman,
   formatFaDateTime,
   formatToman,
 } from "@/lib/pricing";
 
-export const dynamic = "force-dynamic";
+/** CDN/ISR cache — critical for Iran latency vs force-dynamic every hit */
+export const revalidate = 60;
 
 export default async function HomePage() {
   let settings: {
     pricePerGram: number;
     priceUpdatedAt: Date;
   } | null = null;
-  let featured: Array<{
-    id: string;
-    slug: string;
-    title: string;
-    category: "ELIZABETH_PARSIAN" | "NON_BANK";
-    weightGrams: number;
-    wagePercent: number;
-    fixedMarkup: number;
-  }> = [];
+  let featured: Awaited<ReturnType<typeof getFeaturedProductsCached>> = [];
   let dbError = false;
 
   try {
     const [siteSettings, products] = await Promise.all([
-      prisma.siteSettings.findUnique({ where: { id: 1 } }),
-      prisma.product.findMany({
-        where: { active: true },
-        orderBy: { sortOrder: "asc" },
-        take: 6,
-      }),
+      getSiteSettingsCached(),
+      getFeaturedProductsCached(),
     ]);
     settings = siteSettings;
     featured = products;

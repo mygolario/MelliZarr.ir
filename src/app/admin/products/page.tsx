@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { isAdminAuthenticated } from "@/lib/auth";
 import { categoryLabels } from "@/lib/config";
@@ -27,6 +28,7 @@ async function updateProductAction(formData: FormData) {
     },
   });
 
+  revalidateTag("products", "max");
   redirect("/admin/products?saved=1");
 }
 

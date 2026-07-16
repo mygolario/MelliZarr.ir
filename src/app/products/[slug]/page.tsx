@@ -1,7 +1,11 @@
 import { notFound } from "next/navigation";
 import { AddToCartButton } from "@/components/add-to-cart-button";
+import {
+  getActiveProductsCached,
+  getProductBySlugCached,
+  getSiteSettingsCached,
+} from "@/lib/catalog";
 import { categoryLabels } from "@/lib/config";
-import { prisma } from "@/lib/db";
 import {
   calculateUnitPriceToman,
   formatFaDateTime,
@@ -9,24 +13,29 @@ import {
   formatWeightGrams,
 } from "@/lib/pricing";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 type Props = { params: Promise<{ slug: string }> };
 
+export async function generateStaticParams() {
+  const products = await getActiveProductsCached();
+  return products.map((product) => ({ slug: product.slug }));
+}
+
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
-  const product = await prisma.product.findUnique({ where: { slug } });
+  const product = await getProductBySlugCached(slug);
   return { title: product?.title ?? "محصول" };
 }
 
 export default async function ProductDetailPage({ params }: Props) {
   const { slug } = await params;
   const [product, settings] = await Promise.all([
-    prisma.product.findUnique({ where: { slug } }),
-    prisma.siteSettings.findUniqueOrThrow({ where: { id: 1 } }),
+    getProductBySlugCached(slug),
+    getSiteSettingsCached(),
   ]);
 
-  if (!product || !product.active) notFound();
+  if (!product || !product.active || !settings) notFound();
 
   const price = calculateUnitPriceToman({
     weightGrams: product.weightGrams,
