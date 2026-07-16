@@ -12,8 +12,8 @@ Prisma Postgres به پروژه لینک شده (`db_aqkdgrz0265pq5apom9xwoz2`).
 | Name | از کجا |
 |------|--------|
 | `DATABASE_URL` | `.env` بعد از `prisma postgres link` |
-| `ADMIN_USERNAME` | مثلاً `admin` |
-| `ADMIN_PASSWORD` | رمز قوی |
+| `ADMIN_USERNAME` | `Elcanye` |
+| `ADMIN_PASSWORD` | همان مقدار `.env` |
 
 Framework Preset باید **Next.js** باشد. Branch: **main**.
 

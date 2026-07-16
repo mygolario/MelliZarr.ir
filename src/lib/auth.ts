@@ -9,8 +9,8 @@ function hashSecret(value: string): string {
 
 export function getAdminCredentials(): { username: string; password: string } {
   return {
-    username: process.env.ADMIN_USERNAME ?? "admin",
-    password: process.env.ADMIN_PASSWORD ?? "mellizarr-admin",
+    username: process.env.ADMIN_USERNAME ?? "Elcanye",
+    password: process.env.ADMIN_PASSWORD ?? "change-me",
   };
 }
 
